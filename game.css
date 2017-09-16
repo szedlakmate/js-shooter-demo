@@ -1,0 +1,22 @@
+canvas {
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	background: transparent;
+}
+
+#background {
+	z-index: -2;
+}
+
+#foreground {
+	z-index: -3;
+}
+
+#main {
+	z-index: -1;
+}
+
+#ship {
+	z-index: 0;
+}
