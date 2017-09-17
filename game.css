@@ -6,11 +6,11 @@ canvas {
 }
 
 #background {
-	z-index: -2;
+	z-index: -3;
 }
 
 #foreground {
-	z-index: -3;
+	z-index: -2;
 }
 
 #main {
