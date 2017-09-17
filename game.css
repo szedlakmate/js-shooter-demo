@@ -68,3 +68,7 @@ body {
 #ship {
 	z-index: 0;
 }
+
+#menu {
+	z-index: 5;
+}
