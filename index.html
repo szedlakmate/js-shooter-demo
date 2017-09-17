@@ -1,24 +1,28 @@
 <!DOCTYPE html>
 <meta charset="UTF-8">
 <html>
-	<head>
-		<title>Egyszerű side scroller shot'em up játék űrhajóval</title>
-		<link rel="stylesheet" type="text/css" href="game.css">
-	</head>
-	<body>
-		<!-- The canvas for the panning background -->
-		<canvas id="background" width="600" height="360">
+<head>
+	<title>Shoot'em up játék űrhajóval</title>
+	<link href="https://fonts.googleapis.com/css?family=Play:400,700&amp;subset=latin-ext" rel="stylesheet">
+	<link rel="stylesheet" type="text/css" href="game.css">
+</head>
+<body>
+	<!-- The canvas for the panning background -->
+	<div class="header">
+		<h1 class="title">Shot'em up</h1>
+	</div>
+		<div class="header-transition">
+	</div>
+		<canvas id="background" class="game-window" width="600" height="360">
 			Your browser does not support canvas. Please try again with a different browser.
 		</canvas>
-		<canvas id="foreground" width="600" height="360">
-		</canvas>		
+		<canvas id="foreground" class="game-window" width="600" height="360">
+		</canvas>	
 		<!-- The canvas for all enemy ships and bullets -->
-		<canvas id="main" width="600" height="360">
+		<canvas id="main" class="game-window" width="600" height="360">
 		</canvas>
-		<!-- The canvas the ship uses (can only move up
-         one forth the screen.) -->
-		<canvas id="ship" width="600" height="360">
+		<canvas id="ship" class="game-window" width="600" height="360">
 		</canvas>
-		<script src='game.js'></script>
-	</body>
+	<script src="game.js"></script>
+</body>
 </html>
