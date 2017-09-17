@@ -106,54 +106,53 @@ function Drawable() {
 // canvas and creates the illusion of moving by panning the image.
 function Background() {
 	this.scrollXSpeed = 0.5; // Relative speed of scrolling
+	// Y-axis speed
+	this.speed = this.scrollXSpeed;
 	// Implement abstract function
 	this.draw = function(shipXRatio) {
 		// Scroll
-		this.x = shipXRatio * this.canvasWidth * this.scrollXSpeed;
+		this.x = -shipXRatio * this.canvasWidth * this.scrollXSpeed;
+		this.y += this.speed;
 		this.context.drawImage(imageRepository.background, this.x, this.y);
 		// Extend the background
-		this.context.drawImage(imageRepository.background, this.x - this.canvasWidth, this.y /*- this.canvasHeight*/);
-		this.context.drawImage(imageRepository.background, this.x + this.canvasWidth, this.y /*- this.canvasHeight*/);
+		this.context.drawImage(imageRepository.background, this.x - this.canvasWidth, this.y);
+		this.context.drawImage(imageRepository.background, this.x + this.canvasWidth, this.y);
+		this.context.drawImage(imageRepository.background, this.x, this.y - this.canvasHeight);
+		this.context.drawImage(imageRepository.background, this.x - this.canvasWidth, this.y - this.canvasHeight);		
+		this.context.drawImage(imageRepository.background, this.x + this.canvasWidth, this.y - this.canvasHeight);
+
 		// If the image scrolled off the screen, reset
-		// XXX NOT NEEDED IN THEFINAL VERSION
-		/*if (this.x >= this.canvasWidth/4 || this.x <= -this.canvasWidth/4)
+		if (this.y >= this.canvasHeight)
 		{
-			this.speed *= -1;
-		}
-		*/
-		// Emergency reset - Should be included in the infinal version
-		if (this.x >= this.canvasWidth || this.x <= -this.canvasWidth)
-		{
-			this.x = 0;
+			this.y = 0;
 		}
 	};
 }
 
 function Foreground() {
 	this.scrollXSpeed = 1.0; // Relative speed of scrolling
+	this.speed = this.scrollXSpeed;
+
 	// Implement abstract function
 	this.draw = function(shipXRatio) {
 		// Clear foreground
 		this.context.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
 		// Scroll
-		this.x = shipXRatio * this.canvasWidth * this.scrollXSpeed;
+		this.x = -shipXRatio * this.canvasWidth * this.scrollXSpeed;
+		this.y += this.speed;
 		this.context.drawImage(imageRepository.foreground, this.x, this.y);
 		// Extend the background
-		this.context.drawImage(imageRepository.foreground, this.x - this.canvasWidth, this.y /*- this.canvasHeight*/);
-		this.context.drawImage(imageRepository.foreground, this.x + this.canvasWidth, this.y /*- this.canvasHeight*/);
+		this.context.drawImage(imageRepository.foreground, this.x - this.canvasWidth, this.y);
+		this.context.drawImage(imageRepository.foreground, this.x + this.canvasWidth, this.y);
+		this.context.drawImage(imageRepository.foreground, this.x, this.y - this.canvasHeight);
+		this.context.drawImage(imageRepository.foreground, this.x - this.canvasWidth, this.y - this.canvasHeight);		
+		this.context.drawImage(imageRepository.foreground, this.x + this.canvasWidth, this.y - this.canvasHeight);
+
 		// If the image scrolled off the screen, reset
-		// XXX NOT NEEDED IN THEFINAL VERSION
-		/*
-		if (this.x >= this.canvasWidth/2 || this.x <= -this.canvasWidth/2)
+		if (this.y >= this.canvasHeight)
 		{
-			this.speed *= -1;
+			this.y = 0;
 		}
-		// Emergency reset - Should be included in the infinal version
-		if (this.x >= this.canvasWidth || this.x <= -this.canvasWidth)
-		{
-			this.x = 0;
-		}
-		*/
 	};
 }
 
