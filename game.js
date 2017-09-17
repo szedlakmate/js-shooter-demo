@@ -132,20 +132,21 @@ function Background() {
 	// Implement abstract function
 	this.draw = function(shipXRatio) {
 		// Scroll
-		this.x = -shipXRatio * this.canvasWidth * this.scrollXSpeed;
-		this.y += this.speed;
+		this.y = -shipXRatio * this.canvasWidth * this.scrollXSpeed;
+		this.x -= this.speed;
 		this.context.drawImage(imageRepository.background, this.x, this.y);
 		// Extend the background
-		this.context.drawImage(imageRepository.background, this.x - this.canvasWidth, this.y);
-		this.context.drawImage(imageRepository.background, this.x + this.canvasWidth, this.y);
 		this.context.drawImage(imageRepository.background, this.x, this.y - this.canvasHeight);
-		this.context.drawImage(imageRepository.background, this.x - this.canvasWidth, this.y - this.canvasHeight);		
+		this.context.drawImage(imageRepository.background, this.x, this.y + this.canvasHeight);
+
+		this.context.drawImage(imageRepository.background, this.x + this.canvasWidth, this.y);
 		this.context.drawImage(imageRepository.background, this.x + this.canvasWidth, this.y - this.canvasHeight);
+		this.context.drawImage(imageRepository.background, this.x + this.canvasWidth, this.y + this.canvasHeight);
 
 		// If the image scrolled off the screen, reset
-		if (this.y >= this.canvasHeight)
+		if (this.x <= -this.canvasWidth)
 		{
-			this.y = 0;
+			this.x = 0;
 		}
 	};
 }
@@ -159,20 +160,21 @@ function Foreground() {
 		// Clear foreground
 		this.context.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
 		// Scroll
-		this.x = -shipXRatio * this.canvasWidth * this.scrollXSpeed;
-		this.y += this.speed;
+		this.y = -shipXRatio * this.canvasWidth * this.scrollXSpeed;
+		this.x -= this.speed;
 		this.context.drawImage(imageRepository.foreground, this.x, this.y);
 		// Extend the background
-		this.context.drawImage(imageRepository.foreground, this.x - this.canvasWidth, this.y);
-		this.context.drawImage(imageRepository.foreground, this.x + this.canvasWidth, this.y);
 		this.context.drawImage(imageRepository.foreground, this.x, this.y - this.canvasHeight);
-		this.context.drawImage(imageRepository.foreground, this.x - this.canvasWidth, this.y - this.canvasHeight);		
-		this.context.drawImage(imageRepository.foreground, this.x + this.canvasWidth, this.y - this.canvasHeight);
+		this.context.drawImage(imageRepository.foreground, this.x, this.y + this.canvasHeight);
+
+		this.context.drawImage(imageRepository.foreground, this.x + this.canvasWidth, this.y);
+		this.context.drawImage(imageRepository.foreground, this.x + this.canvasWidth, this.y - this.canvasHeight);	
+		this.context.drawImage(imageRepository.foreground, this.x + this.canvasWidth, this.y + this.canvasHeight);
 
 		// If the image scrolled off the screen, reset
-		if (this.y >= this.canvasHeight)
+		if (this.x <= -this.canvasWidth)
 		{
-			this.y = 0;
+			this.x = 0;
 		}
 	};
 }
@@ -182,10 +184,10 @@ function Menu() {
 	// Implement abstract function
 	this.draw = function(shipXRatio) {
 		this.context.drawImage(imageRepository.logo, this.canvasWidth/2 - 50, 10);
-		this.context.drawImage(imageRepository.game1, this.canvasWidth/2 - 100, 200);
-		this.context.drawImage(imageRepository.game2, this.canvasWidth/2 - 100, 300);
-		this.context.drawImage(imageRepository.game3, this.canvasWidth/2 - 100, 400);
-		this.context.drawImage(imageRepository.logo, this.canvasWidth/2 - 100, 500);
+		this.context.drawImage(imageRepository.game1, this.canvasWidth/2 - 100, 150);
+		this.context.drawImage(imageRepository.game2, this.canvasWidth/2 - 100, 250);
+		this.context.drawImage(imageRepository.game3, this.canvasWidth/2 - 100, 350);
+		this.context.drawImage(imageRepository.exit, this.canvasWidth/2 - 100, 450);
 	};
 
 	this.clear = function() {
@@ -215,8 +217,8 @@ function Bullet() {
 
 	this.draw = function() {
 		this.context.clearRect(this.x, this.y, this.width, this.height);
-		this.y -= this.speed;
-		if (this.y <= 0 - this.height) {
+		this.x += this.speed;
+		if (this.x >= game.mainCanvas.width) {
 			return true;
 		}
 		else {
@@ -315,8 +317,8 @@ function Ship() {
 					this.x = this.canvasWidth - this.width;
 			} else if (KEY_STATUS.up) {
 				this.y -= this.speed
-				if (this.y <= this.canvasHeight/4*3)
-					this.y = this.canvasHeight/4*3;
+				if (this.y <= 0)
+					this.y = 0;
 			} else if (KEY_STATUS.down) {
 				this.y += this.speed
 				if (this.y >= this.canvasHeight - this.height)
@@ -334,8 +336,8 @@ function Ship() {
 	};
 	
 	this.fire = function() {
-		this.bulletPool.getTwo(this.x+6, this.y, 3,
-			this.x+33, this.y, 3);
+		this.bulletPool.getTwo(this.x, this.y+6, 3,
+			this.x, this.y+33, 3);
 	};
 }
 Ship.prototype = new Drawable();
@@ -343,6 +345,13 @@ Ship.prototype = new Drawable();
 
  // Creates the Game object which will hold all objects and data for the game.
  function Game() {
+
+	// Swithes
+	this.withMenu = true;
+ 	this.game1 = false;
+ 	this.game2 = false;
+ 	this.game3 = false;
+ 	this.exit = false;
 
  	this.init = function() {
 		// Get the canvas elements
@@ -396,8 +405,8 @@ Ship.prototype = new Drawable();
 			// Initialize the ship object
 			this.ship = new Ship();
 			// Set the ship to start near the bottom middle of the canvas
-			var shipStartX = this.shipCanvas.width/2 - imageRepository.spaceship.width;
-			var shipStartY = this.shipCanvas.height/4*3 + imageRepository.spaceship.height*2;
+			var shipStartX = 5 + imageRepository.spaceship.width/2;
+			var shipStartY = this.shipCanvas.height/2 - imageRepository.spaceship.height/2;
 			this.ship.init(shipStartX, shipStartY, imageRepository.spaceship.width,
 				imageRepository.spaceship.height);
 
@@ -409,36 +418,47 @@ Ship.prototype = new Drawable();
 
 	// Mainmenu
 	this.drawMenu = function() {
-		this.withMenu = true;
 		animate();
+
+		var elemLeft = this.menuCanvas.offsetLeft,
+   		elemTop = this.menuCanvas.offsetTop;
 
 		// Add event listener for `click` events.
 		this.menuCanvas.addEventListener('click', function(event) {
-			var x = event.pageX,
-			y = event.pageY;
+			var x = event.pageX - elemLeft,
+			y = event.pageY - elemTop;
 
 			console.log("x: " + x + " y: " + y);
-/*
-    		// Collision detection between clicked offset and element.
-    		elements.forEach(function(element) {
-    			if (y > element.top && y < element.top + element.height 
-    				&& x > element.left && x < element.left + element.width) {
-    				alert('clicked an element');
-    		}
-    	});*/
+			if ((x > game.mainCanvas.width/2 - imageRepository.game1.height) && (x < game.mainCanvas.width/2 + imageRepository.game1.height)) {
+				if ((y > 150) && (y < 150 + imageRepository.game1.height)) {
+					game.game1 = true;
+					game.drawMenu = false;
+					game.start();
+				} else if ((y > 250) && (y < 250 + imageRepository.game2.height)) {
+					game.game2 = true;
+					game.drawMenu = false;
+					game.start();
+				} else if ((y > 350) && (y < 350 + imageRepository.game3.height)) {
+					game.game3 = true;
+					game.drawMenu = false;
+					game.start();
+				} else if ((y > 450) && (y < 450 + imageRepository.exit.height)) {
+					game.exit = true;
+					//game.drawMenu = false;
+					//game.start();
+					alert("Exit is not yet implemented");
+				}
+			}
 
     	}, false);
-
-
-		console.log("Check here");
-		//this.start();
 	};
 	
 	// Start the animation loop
 	this.start = function() {
+		this.withMenu = false;
+		this.menu.clear();
 		addListeners();
 		this.ship.draw();
-		//animate();
 	};
 }
 
@@ -460,10 +480,10 @@ Ship.prototype = new Drawable();
 // Original code by Doug McInnes
 KEY_CODES = {
 	32: 'space',
-	37: 'left',
-	/*38: 'up',*/
-	39: 'right',
-	/*40: 'down',*/
+	/*37: 'left',*/
+	38: 'up',
+	/*39: 'right',*/
+	40: 'down'
 }
 
 // Creates the array to hold the KEY_CODES and sets all their values
