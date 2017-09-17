@@ -130,9 +130,9 @@ function Background() {
 	// Y-axis speed
 	this.speed = this.scrollXSpeed;
 	// Implement abstract function
-	this.draw = function(shipXRatio) {
+	this.draw = function(shipYRatio) {
 		// Scroll
-		this.y = -shipXRatio * this.canvasWidth * this.scrollXSpeed;
+		this.y = -shipYRatio * this.canvasWidth * this.scrollXSpeed;
 		this.x -= this.speed;
 		this.context.drawImage(imageRepository.background, this.x, this.y);
 		// Extend the background
@@ -156,11 +156,11 @@ function Foreground() {
 	this.speed = this.scrollXSpeed;
 
 	// Implement abstract function
-	this.draw = function(shipXRatio) {
+	this.draw = function(shipYRatio) {
 		// Clear foreground
 		this.context.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
 		// Scroll
-		this.y = -shipXRatio * this.canvasWidth * this.scrollXSpeed;
+		this.y = -shipYRatio * this.canvasWidth * this.scrollXSpeed;
 		this.x -= this.speed;
 		this.context.drawImage(imageRepository.foreground, this.x, this.y);
 		// Extend the background
@@ -466,11 +466,11 @@ Ship.prototype = new Drawable();
  // The animation loop. 
  function animate() {
  	requestAnimFrame( animate );
- 	let shipXRatio = (game.ship.x - game.background.canvasWidth/2)/game.background.canvasWidth/2;
+ 	let shipYRatio = (game.ship.y - game.background.canvasHeight/2)/game.background.canvasHeight/2;
 
  	if (game.withMenu) game.menu.draw();
- 	game.background.draw(shipXRatio);
- 	game.foreground.draw(shipXRatio);
+ 	game.background.draw(shipYRatio);
+ 	game.foreground.draw(shipYRatio);
  	game.ship.move();
  	game.ship.bulletPool.animate(); 
  }
