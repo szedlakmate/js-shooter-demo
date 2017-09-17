@@ -1,5 +1,5 @@
 /*
-"Egyszerű side scroller shot'em up játék űrhajóval"
+"Egyszerű side scroller shoot'em up játék űrhajóval"
 Author: Máté Szedlák
 16/09/2017
 
