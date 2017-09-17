@@ -14,7 +14,7 @@ body {
 }
 
 .header {
-	height: 80px;
+	height: 60px;
 	width: 100%;
 	top: 0;
 	margin: 0;
@@ -38,7 +38,7 @@ body {
 	text-align: center;
 	font-size: 2rem;
 	margin: 0;
-	line-height: 80px;
+	line-height: 60px;
 }
 
 .game-window {
@@ -67,4 +67,8 @@ body {
 
 #ship {
 	z-index: 0;
+}
+
+#menu {
+	z-index: 5;
 }

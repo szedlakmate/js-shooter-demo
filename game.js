@@ -22,31 +22,32 @@ https://www.slideshare.net/ernesto.jimenez/5-tips-for-your-html5-games
 
 */
 
-
-
 //Initialize the Game and start it.
 var game = new Game();
 
 function init() {
 	if(game.init())
-		game.start();
+		game.drawMenu();
 }
-
 
 
 // Define an object to hold all our images for the game so images
 // are only ever created once. This type of object is known as a 
 // singleton.
-
 var imageRepository = new function() {
 	// Define images
 	this.background = new Image();
 	this.foreground = new Image();
 	this.spaceship = new Image();
 	this.bullet = new Image();
+	this.logo = new Image();
+	this.game1 = new Image();
+	this.game2 = new Image();
+	this.game3 = new Image();
+	this.exit = new Image();
 
 	// Ensure all images have loaded before starting the game
-	var numImages = 4;
+	var numImages = 9;
 	var numLoaded = 0;
 	function imageLoaded() {
 		numLoaded++;
@@ -58,12 +59,27 @@ var imageRepository = new function() {
 		imageLoaded();
 	}
 	this.foreground.onload = function() {
-		imageLoaded();		
+		imageLoaded();	
 	}
 	this.spaceship.onload = function() {
 		imageLoaded();
 	}
 	this.bullet.onload = function() {
+		imageLoaded();
+	}
+	this.logo.onload = function() {
+		imageLoaded();
+	}
+	this.game1.onload = function() {
+		imageLoaded();
+	}
+	this.game2.onload = function() {
+		imageLoaded();
+	}
+	this.game3.onload = function() {
+		imageLoaded();
+	}
+	this.exit.onload = function() {
 		imageLoaded();
 	}
 	
@@ -72,6 +88,11 @@ var imageRepository = new function() {
 	this.foreground.src = "imgs/fg.png";
 	this.spaceship.src = "imgs/ship.png";
 	this.bullet.src = "imgs/bullet.png";
+	this.logo.src = "imgs/logo.jpg";
+	this.game1.src = "imgs/game1.png";
+	this.game2.src = "imgs/game2.png";
+	this.game3.src = "imgs/game3.png";
+	this.exit.src = "imgs/exit.png";
 }
 
 
@@ -111,20 +132,21 @@ function Background() {
 	// Implement abstract function
 	this.draw = function(shipXRatio) {
 		// Scroll
-		this.x = -shipXRatio * this.canvasWidth * this.scrollXSpeed;
-		this.y += this.speed;
+		this.y = -shipXRatio * this.canvasWidth * this.scrollXSpeed;
+		this.x -= this.speed;
 		this.context.drawImage(imageRepository.background, this.x, this.y);
 		// Extend the background
-		this.context.drawImage(imageRepository.background, this.x - this.canvasWidth, this.y);
-		this.context.drawImage(imageRepository.background, this.x + this.canvasWidth, this.y);
 		this.context.drawImage(imageRepository.background, this.x, this.y - this.canvasHeight);
-		this.context.drawImage(imageRepository.background, this.x - this.canvasWidth, this.y - this.canvasHeight);		
+		this.context.drawImage(imageRepository.background, this.x, this.y + this.canvasHeight);
+
+		this.context.drawImage(imageRepository.background, this.x + this.canvasWidth, this.y);
 		this.context.drawImage(imageRepository.background, this.x + this.canvasWidth, this.y - this.canvasHeight);
+		this.context.drawImage(imageRepository.background, this.x + this.canvasWidth, this.y + this.canvasHeight);
 
 		// If the image scrolled off the screen, reset
-		if (this.y >= this.canvasHeight)
+		if (this.x <= -this.canvasWidth)
 		{
-			this.y = 0;
+			this.x = 0;
 		}
 	};
 }
@@ -138,27 +160,46 @@ function Foreground() {
 		// Clear foreground
 		this.context.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
 		// Scroll
-		this.x = -shipXRatio * this.canvasWidth * this.scrollXSpeed;
-		this.y += this.speed;
+		this.y = -shipXRatio * this.canvasWidth * this.scrollXSpeed;
+		this.x -= this.speed;
 		this.context.drawImage(imageRepository.foreground, this.x, this.y);
 		// Extend the background
-		this.context.drawImage(imageRepository.foreground, this.x - this.canvasWidth, this.y);
-		this.context.drawImage(imageRepository.foreground, this.x + this.canvasWidth, this.y);
 		this.context.drawImage(imageRepository.foreground, this.x, this.y - this.canvasHeight);
-		this.context.drawImage(imageRepository.foreground, this.x - this.canvasWidth, this.y - this.canvasHeight);		
-		this.context.drawImage(imageRepository.foreground, this.x + this.canvasWidth, this.y - this.canvasHeight);
+		this.context.drawImage(imageRepository.foreground, this.x, this.y + this.canvasHeight);
+
+		this.context.drawImage(imageRepository.foreground, this.x + this.canvasWidth, this.y);
+		this.context.drawImage(imageRepository.foreground, this.x + this.canvasWidth, this.y - this.canvasHeight);	
+		this.context.drawImage(imageRepository.foreground, this.x + this.canvasWidth, this.y + this.canvasHeight);
 
 		// If the image scrolled off the screen, reset
-		if (this.y >= this.canvasHeight)
+		if (this.x <= -this.canvasWidth)
 		{
-			this.y = 0;
+			this.x = 0;
 		}
 	};
+}
+
+function Menu() {
+
+	// Implement abstract function
+	this.draw = function(shipXRatio) {
+		this.context.drawImage(imageRepository.logo, this.canvasWidth/2 - 50, 10);
+		this.context.drawImage(imageRepository.game1, this.canvasWidth/2 - 100, 150);
+		this.context.drawImage(imageRepository.game2, this.canvasWidth/2 - 100, 250);
+		this.context.drawImage(imageRepository.game3, this.canvasWidth/2 - 100, 350);
+		this.context.drawImage(imageRepository.exit, this.canvasWidth/2 - 100, 450);
+	};
+
+	this.clear = function() {
+		// Clear foreground
+		this.context.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
+	}
 }
 
 // Set Background to inherit properties from Drawable
 Background.prototype = new Drawable();
 Foreground.prototype = new Drawable();
+Menu.prototype = new Drawable();
 
 
 // Creates the Bullet object which the ship fires. The bullets are
@@ -166,39 +207,39 @@ Foreground.prototype = new Drawable();
 function Bullet() {	
 	this.alive = false; // Is true if the bullet is currently in use
 	
-	 // Sets the bullet values
-	 this.spawn = function(x, y, speed) {
-	 	this.x = x;
-	 	this.y = y;
-	 	this.speed = speed;
-	 	this.alive = true;
-	 };
+	// Sets the bullet values
+	this.spawn = function(x, y, speed) {
+		this.x = x;
+		this.y = y;
+		this.speed = speed;
+		this.alive = true;
+	};
 
-	 this.draw = function() {
-	 	this.context.clearRect(this.x, this.y, this.width, this.height);
-	 	this.y -= this.speed;
-	 	if (this.y <= 0 - this.height) {
-	 		return true;
-	 	}
-	 	else {
-	 		this.context.drawImage(imageRepository.bullet, this.x, this.y);
-	 	}
-	 };
+	this.draw = function() {
+		this.context.clearRect(this.x, this.y, this.width, this.height);
+		this.x += this.speed;
+		if (this.x >= game.mainCanvas.width) {
+			return true;
+		}
+		else {
+			this.context.drawImage(imageRepository.bullet, this.x, this.y);
+		}
+	};
 
-	 // Resets the bullet values
-	 this.clear = function() {
-	 	this.x = 0;
-	 	this.y = 0;
-	 	this.speed = 0;
-	 	this.alive = false;
-	 };
-	}
-	Bullet.prototype = new Drawable();
+	// Resets the bullet values
+	this.clear = function() {
+		this.x = 0;
+		this.y = 0;
+		this.speed = 0;
+		this.alive = false;
+	};
+}
+Bullet.prototype = new Drawable();
 
 
- // Custom Pool object. Holds Bullet objects to be managed to prevent
- // garbage collection. 
- function Pool(maxSize) {
+// Custom Pool object. Holds Bullet objects to be managed to prevent
+// garbage collection. 
+function Pool(maxSize) {
 	var size = maxSize; // Max bullets allowed in the pool
 	var pool = [];
 	
@@ -276,8 +317,8 @@ function Ship() {
 					this.x = this.canvasWidth - this.width;
 			} else if (KEY_STATUS.up) {
 				this.y -= this.speed
-				if (this.y <= this.canvasHeight/4*3)
-					this.y = this.canvasHeight/4*3;
+				if (this.y <= 0)
+					this.y = 0;
 			} else if (KEY_STATUS.down) {
 				this.y += this.speed
 				if (this.y >= this.canvasHeight - this.height)
@@ -295,8 +336,8 @@ function Ship() {
 	};
 	
 	this.fire = function() {
-		this.bulletPool.getTwo(this.x+6, this.y, 3,
-			this.x+33, this.y, 3);
+		this.bulletPool.getTwo(this.x, this.y+6, 3,
+			this.x, this.y+33, 3);
 	};
 }
 Ship.prototype = new Drawable();
@@ -305,12 +346,20 @@ Ship.prototype = new Drawable();
  // Creates the Game object which will hold all objects and data for the game.
  function Game() {
 
+	// Swithes
+	this.withMenu = true;
+ 	this.game1 = false;
+ 	this.game2 = false;
+ 	this.game3 = false;
+ 	this.exit = false;
+
  	this.init = function() {
 		// Get the canvas elements
 		this.bgCanvas = document.getElementById('background');
 		this.fgCanvas = document.getElementById('foreground');
 		this.shipCanvas = document.getElementById('ship');
 		this.mainCanvas = document.getElementById('main');
+		this.menuCanvas = document.getElementById('menu');
 		
 		// Test to see if canvas is supported. Only need to
 		// check one canvas
@@ -319,16 +368,17 @@ Ship.prototype = new Drawable();
 			this.fgContext = this.fgCanvas.getContext('2d');
 			this.shipContext = this.shipCanvas.getContext('2d');
 			this.mainContext = this.mainCanvas.getContext('2d');
+			this.menuContext = this.menuCanvas.getContext('2d');
 
 			// Initialize objects to contain their context and canvas
 			// information
 			Background.prototype.context = this.bgContext;
-			Background.prototype.canvasWidth = this.bgCanvas.width;
-			Background.prototype.canvasHeight = this.bgCanvas.height;
+			Background.prototype.canvasWidth = this.mainCanvas.width;
+			Background.prototype.canvasHeight = this.mainCanvas.height;
 
 			Foreground.prototype.context = this.fgContext;
-			Foreground.prototype.canvasWidth = this.fgCanvas.width;
-			Foreground.prototype.canvasHeight = this.fgCanvas.height;
+			Foreground.prototype.canvasWidth = this.mainCanvas.width;
+			Foreground.prototype.canvasHeight = this.mainCanvas.height;
 			
 			Ship.prototype.context = this.shipContext;
 			Ship.prototype.canvasWidth = this.shipCanvas.width;
@@ -338,18 +388,25 @@ Ship.prototype = new Drawable();
 			Bullet.prototype.canvasWidth = this.mainCanvas.width;
 			Bullet.prototype.canvasHeight = this.mainCanvas.height;
 			
+			Menu.prototype.context = this.mainContext;
+			Menu.prototype.canvasWidth = this.mainCanvas.width;
+			Menu.prototype.canvasHeight = this.mainCanvas.height;
+
 			// Initialize the background object
 			this.background = new Background();
 			this.background.init(0,0); // Set draw point to 0,0
 
 			this.foreground = new Foreground();
 			this.foreground.init(0,0); // Set draw point to 0,0
+
+			this.menu = new Menu();
+			this.menu.init(0,0); // Set draw point to 0,0
 			
 			// Initialize the ship object
 			this.ship = new Ship();
 			// Set the ship to start near the bottom middle of the canvas
-			var shipStartX = this.shipCanvas.width/2 - imageRepository.spaceship.width;
-			var shipStartY = this.shipCanvas.height/4*3 + imageRepository.spaceship.height*2;
+			var shipStartX = 5 + imageRepository.spaceship.width/2;
+			var shipStartY = this.shipCanvas.height/2 - imageRepository.spaceship.height/2;
 			this.ship.init(shipStartX, shipStartY, imageRepository.spaceship.width,
 				imageRepository.spaceship.height);
 
@@ -358,11 +415,50 @@ Ship.prototype = new Drawable();
 			return false;
 		}
 	};
+
+	// Mainmenu
+	this.drawMenu = function() {
+		animate();
+
+		var elemLeft = this.menuCanvas.offsetLeft,
+   		elemTop = this.menuCanvas.offsetTop;
+
+		// Add event listener for `click` events.
+		this.menuCanvas.addEventListener('click', function(event) {
+			var x = event.pageX - elemLeft,
+			y = event.pageY - elemTop;
+
+			console.log("x: " + x + " y: " + y);
+			if ((x > game.mainCanvas.width/2 - imageRepository.game1.height) && (x < game.mainCanvas.width/2 + imageRepository.game1.height)) {
+				if ((y > 150) && (y < 150 + imageRepository.game1.height)) {
+					game.game1 = true;
+					game.drawMenu = false;
+					game.start();
+				} else if ((y > 250) && (y < 250 + imageRepository.game2.height)) {
+					game.game2 = true;
+					game.drawMenu = false;
+					game.start();
+				} else if ((y > 350) && (y < 350 + imageRepository.game3.height)) {
+					game.game3 = true;
+					game.drawMenu = false;
+					game.start();
+				} else if ((y > 450) && (y < 450 + imageRepository.exit.height)) {
+					game.exit = true;
+					//game.drawMenu = false;
+					//game.start();
+					alert("Exit is not yet implemented");
+				}
+			}
+
+    	}, false);
+	};
 	
 	// Start the animation loop
 	this.start = function() {
+		this.withMenu = false;
+		this.menu.clear();
+		addListeners();
 		this.ship.draw();
-		animate();
 	};
 }
 
@@ -370,7 +466,9 @@ Ship.prototype = new Drawable();
  // The animation loop. 
  function animate() {
  	requestAnimFrame( animate );
- 	let shipXRatio = (game.ship.x - game.background.canvasWidth/2)/game.background.canvasWidth/2
+ 	let shipXRatio = (game.ship.x - game.background.canvasWidth/2)/game.background.canvasWidth/2;
+
+ 	if (game.withMenu) game.menu.draw();
  	game.background.draw(shipXRatio);
  	game.foreground.draw(shipXRatio);
  	game.ship.move();
@@ -382,10 +480,10 @@ Ship.prototype = new Drawable();
 // Original code by Doug McInnes
 KEY_CODES = {
 	32: 'space',
-	37: 'left',
+	/*37: 'left',*/
 	38: 'up',
-	39: 'right',
-	40: 'down',
+	/*39: 'right',*/
+	40: 'down'
 }
 
 // Creates the array to hold the KEY_CODES and sets all their values
@@ -397,35 +495,37 @@ for (code in KEY_CODES) {
 	KEY_STATUS[KEY_CODES[code]] = false;
 }
 
-document.onkeydown = function(e) {
-  // Firefox and opera use charCode instead of keyCode to
-  // return which key was pressed.
-  var keyCode = (e.keyCode) ? e.keyCode : e.charCode;
-  if (KEY_CODES[keyCode]) {
-  	e.preventDefault();
-  	KEY_STATUS[KEY_CODES[keyCode]] = true;
-  }
-}
+function addListeners() {
+	document.onkeydown = function(e) {
+	 	// Firefox and opera use charCode instead of keyCode to
+	  	// return which key was pressed.
+	  	var keyCode = (e.keyCode) ? e.keyCode : e.charCode;
+	  	if (KEY_CODES[keyCode]) {
+	  		e.preventDefault();
+	  		KEY_STATUS[KEY_CODES[keyCode]] = true;
+	  	}
+	  }
 
-document.onkeyup = function(e) {
-	var keyCode = (e.keyCode) ? e.keyCode : e.charCode;
-	if (KEY_CODES[keyCode]) {
-		e.preventDefault();
-		KEY_STATUS[KEY_CODES[keyCode]] = false;
+	  document.onkeyup = function(e) {
+	  	var keyCode = (e.keyCode) ? e.keyCode : e.charCode;
+	  	if (KEY_CODES[keyCode]) {
+	  		e.preventDefault();
+	  		KEY_STATUS[KEY_CODES[keyCode]] = false;
+	  	}
+	  }
+
 	}
-}
 
-
- // requestAnim shim layer by Paul Irish
- // Finds the first API that works to optimize the animation loop, 
- // otherwise defaults to setTimeout().
- window.requestAnimFrame = (function(){
- 	return  window.requestAnimationFrame       || 
- 	window.webkitRequestAnimationFrame || 
- 	window.mozRequestAnimationFrame    || 
- 	window.oRequestAnimationFrame      || 
- 	window.msRequestAnimationFrame     || 
- 	function(/* function */ callback, /* DOMElement */ element){
- 		window.setTimeout(callback, 1000 / 60);
- 	};
- })();
+// requestAnim shim layer by Paul Irish
+// Finds the first API that works to optimize the animation loop, 
+// otherwise defaults to setTimeout().
+window.requestAnimFrame = (function(){
+	return  window.requestAnimationFrame       || 
+	window.webkitRequestAnimationFrame || 
+	window.mozRequestAnimationFrame    || 
+	window.oRequestAnimationFrame      || 
+	window.msRequestAnimationFrame     || 
+	function(/* function */ callback, /* DOMElement */ element){
+		window.setTimeout(callback, 1000 / 60);
+	};
+})();
