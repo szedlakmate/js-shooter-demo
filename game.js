@@ -392,16 +392,13 @@ Ship.prototype = new Drawable();
 	this.drawMenu = function() {
 		animate();
 
-		var elemLeft = this.menuCanvas.offsetLeft,
-		elemTop = this.menuCanvas.offsetTop;
-
 		// Add event listener for `click` events.
 		this.menuCanvas.addEventListener('click', function(event) {
-			var x = event.pageX - elemLeft,
-			y = event.pageY - elemTop;
 
-			console.log("x: " + x + " y: " + y);
-			if ((x > screenWidth()/2 - imageRepository.img.game1.width) && (x < game.mainCanvas.width/2 + imageRepository.img.game1.width)) {
+			var x = event.pageX - game.menuCanvas.offsetLeft,
+			y = event.pageY - game.menuCanvas.offsetTop;
+
+			if ((x > (game.mainCanvas.width - imageRepository.img.game1.width)/2) && (x < (game.mainCanvas.width + imageRepository.img.game1.width)/2)) {
 				if ((y > game.menu.layoutY[1]) && (y < game.menu.layoutY[1] + imageRepository.img.game1.height)) {
 					game.game1 = true;
 					game.drawMenu = false;
@@ -466,7 +463,7 @@ for (code in KEY_CODES) {
 }
 
 function screenWidth() {
-	return game.mainCanvas.width;
+	return ;
 }
 
 function addListeners() {
