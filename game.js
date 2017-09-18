@@ -229,7 +229,7 @@ function Pool(maxSize) {
 			for (var i = 0; i < size; i++) {
 				var enemy = new Enemy();
 				enemy.init(0,0, imageRepository.img.enemy.width, imageRepository.img.enemy.height);
-				pool[i] = enemy;
+				pool.unshift(enemy);
 			}
 		}
 		else if (object == "enemyBullet") {
@@ -337,40 +337,37 @@ Ship.prototype = new Drawable();
  	var percentFire = .01;
  	var chance = 0;
  	this.alive = false;
-	/*
-	 * Sets the Enemy values
-	 */
-	 this.spawn = function(x, y, speed) {
-	 	this.x = x;
-	 	this.y = y;
-	 	this.speed = speed;
-	 	this.speedX = 0;
-	 	this.speedY = speed;
-	 	this.alive = true;
-	 	this.leftEdge = this.x - 90;
-	 	this.rightEdge = this.x + 90;
-	 	this.bottomEdge = this.y + 140;
-	 };
-	/*
-	 * Move the enemy
-	 */
-	 this.draw = function() {
-	 	this.context.clearRect(this.x-1, this.y, this.width+1, this.height);
-	 	this.x += this.speedX;
-	 	this.y += this.speedY;
-	 	if (this.x <= this.leftEdge) {
-	 		this.speedX = this.speed;
-	 	}
-	 	else if (this.x >= this.rightEdge + this.width) {
-	 		this.speedX = -this.speed;
-	 	}
-	 	else if (this.y >= this.bottomEdge) {
-	 		this.speed = 1.5;
-	 		this.speedY = 0;
-	 		this.y -= 5;
-	 		this.speedX = -this.speed;
-	 	}
-	 	this.context.drawImage(imageRepository.img.enemy, this.x, this.y);
+
+	// Sets the Enemy values
+
+	this.spawn = function(x, y, speed) {
+		this.x = x;
+		this.y = y;
+		this.speed = speed;
+		this.speedX = -speed;
+		this.speedY = 0;
+		this.alive = true;
+		this.topEdge = this.y - 90;
+		this.bottomEdge = this.y + 90;
+	 	//this.leftEdge = this.x - 140;
+	};
+
+	//Move the enemy
+
+	this.draw = function() {
+		this.context.clearRect(this.x-1, this.y, this.width+1, this.height);
+		this.x += this.speedX;
+		this.y += this.speedY;
+		this.speedY += (Math.random()-0.5)*0.5*this.speed;
+		if ( Math.abs(this.speedY) > this.speed) this.speedY *= 0.9
+			if (this.y <= this.topEdge) {
+				this.speedY = Math.abs(this.speedY)/2;
+			}
+			else if (this.y >= this.bottomEdge + this.width) {
+				this.speedY = -Math.abs(this.speedY)/2;
+			}
+
+			this.context.drawImage(imageRepository.img.enemy, this.x, this.y);
 		// Enemy has a chance to shoot every movement
 		chance = Math.floor(Math.random()*101);
 		if (chance/100 < percentFire) {
@@ -472,10 +469,12 @@ Ship.prototype = new Drawable();
 			// Initialize the enemy pool object
 			this.enemyPool = new Pool(30);
 			this.enemyPool.init("enemy");
+			this.enemyPool.get(this.shipCanvas.width- imageRepository.img.enemy.width, Math.random()*this.shipCanvas.height*0.9+10, 2);
+			/*
 			var height = imageRepository.img.enemy.height;
 			var width = imageRepository.img.enemy.width;
 			var x = 100;
-			var y = -height;
+			var y = -imageRepository.img.enemy.height;
 			var spacer = y * 1.5;
 			for (var i = 1; i <= 18; i++) {
 				this.enemyPool.get(x,y,2);
@@ -485,6 +484,7 @@ Ship.prototype = new Drawable();
 					y += spacer
 				}
 			}
+			*/
 			this.enemyBulletPool = new Pool(50);
 			this.enemyBulletPool.init("enemyBullet");
 
