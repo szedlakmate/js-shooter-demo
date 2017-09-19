@@ -257,8 +257,21 @@ function Pool(maxSize) {
 };
 
 this.animate = function() {
+	let actualTime = new Date()
+	actualtime = actualTime.getHours()*60*60 + actualTime.getMinutes()*60 + actualTime.getSeconds()
+	
+	if (!this.time) {
+		if (actualTime - this.time > 2.0 || actualTime - this.time < 0) {
+			this.time = actualtime;
+			game.addEnemy();
+			/*
+			game.enemyPool.init("enemy");
+			game.enemyPool.get(game.shipCanvas.width- imageRepository.img.enemy.width, Math.random()*game.shipCanvas.height*0.9+10, 2);
+			game.enemyBulletPool.init("enemyBullet");*/
+		}
+	} else this.time = actualtime;
 	for (var i = 0; i < size; i++) {
-			// Only draw until we find a bullet that is not alive
+			// Only draw until we find an element that is not alive
 			if (pool[i].alive) {
 				if (pool[i].draw()) {
 					pool[i].clear();
@@ -350,7 +363,7 @@ Ship.prototype = new Drawable();
 		this.topEdge = this.y - 90;
 		this.bottomEdge = this.y + 90;
 	 	//this.leftEdge = this.x - 140;
-	};
+	 };
 
 	//Move the enemy
 
@@ -468,8 +481,12 @@ Ship.prototype = new Drawable();
 
 			// Initialize the enemy pool object
 			this.enemyPool = new Pool(30);
+			this.enemyBulletPool = new Pool(50);
+
 			this.enemyPool.init("enemy");
 			this.enemyPool.get(this.shipCanvas.width- imageRepository.img.enemy.width, Math.random()*this.shipCanvas.height*0.9+10, 2);
+			this.enemyBulletPool.init("enemyBullet");
+
 			/*
 			var height = imageRepository.img.enemy.height;
 			var width = imageRepository.img.enemy.width;
@@ -485,8 +502,8 @@ Ship.prototype = new Drawable();
 				}
 			}
 			*/
-			this.enemyBulletPool = new Pool(50);
-			this.enemyBulletPool.init("enemyBullet");
+
+
 
 			return true;
 		} else {
@@ -494,42 +511,62 @@ Ship.prototype = new Drawable();
 		}
 	};
 
+	this.addEnemy = function() {
+		console.log("Add enemy");
+		this.enemyPool.init("enemy");
+		this.enemyPool.get(this.shipCanvas.width- imageRepository.img.enemy.width, Math.random()*this.shipCanvas.height*0.9+10, 2);
+		this.enemyBulletPool.init("enemyBullet");
+	}
+
 	// Mainmenu
 	this.drawMenu = function() {
 		animate();
 
 		// Add event listener for `click` events.
-		this.menuCanvas.addEventListener('click', function(event) {
+		this.menuCanvas.addEventListener('click', eventListener = function(event) {
 
-			var x = event.pageX - game.menuCanvas.offsetLeft,
-			y = event.pageY - game.menuCanvas.offsetTop;
+		var x = event.pageX - game.menuCanvas.offsetLeft,
+		y = event.pageY - game.menuCanvas.offsetTop;
 
-			if ((x > (game.mainCanvas.width - imageRepository.img.game1.width)/2) && (x < (game.mainCanvas.width + imageRepository.img.game1.width)/2)) {
-				if ((y > game.menu.layoutY[1]) && (y < game.menu.layoutY[1] + imageRepository.img.game1.height)) {
-					game.game1 = true;
-					game.drawMenu = false;
-					console.log("GAME 1");
-					game.start();
-				} else if ((y > game.menu.layoutY[2]) && (y < game.menu.layoutY[2] + imageRepository.img.game2.height)) {
-					game.game2 = true;
-					game.drawMenu = false;
-					console.log("GAME 2");
-					game.start();
-				} else if ((y > game.menu.layoutY[3]) && (y < game.menu.layoutY[3] + imageRepository.img.game3.height)) {
-					game.game3 = true;
-					game.drawMenu = false;
-					console.log("GAME 3");
-					game.start();
-				} else if ((y > game.menu.layoutY[4]) && (y < game.menu.layoutY[4] + imageRepository.img.exit.height)) {
-					game.exit = true;
-					window.location.href = 'https://9gag.com/';
-				}
+		if ((x > (game.mainCanvas.width - imageRepository.img.game1.width)/2) && (x < (game.mainCanvas.width + imageRepository.img.game1.width)/2)) {
+			if ((y > game.menu.layoutY[1]) && (y < game.menu.layoutY[1] + imageRepository.img.game1.height)) {
+				game.game1 = true;
+				game.drawMenu = false;
+				game.removeEventListener();
+				console.log("GAME 1");
+				game.start();
+			} else if ((y > game.menu.layoutY[2]) && (y < game.menu.layoutY[2] + imageRepository.img.game2.height)) {
+				game.game2 = true;
+				game.drawMenu = false;
+				game.removeEventListener(); 
+				console.log("GAME 2");
+				game.start();
+			} else if ((y > game.menu.layoutY[3]) && (y < game.menu.layoutY[3] + imageRepository.img.game3.height)) {
+				game.game3 = true;
+				game.drawMenu = false;
+				game.removeEventListener();
+				console.log("GAME 3");
+				game.start();
+			} else if ((y > game.menu.layoutY[4]) && (y < game.menu.layoutY[4] + imageRepository.img.exit.height)) {
+				game.removeEventListener();
+				game.exit = true;
+				window.location.href = 'https://9gag.com/';
 			}
+		}
 
 		}, false);
+
 	};
-	
-	// Start the animation loop
+/*
+	this.eventListener = 
+
+*/
+
+	this.removeEventListener = function() {
+		this.menuCanvas.removeEventListener('click', eventListener, false);
+	}
+
+	// Start screen
 	this.start = function() {
 		this.withMenu = false;
 		this.menu.clear();
