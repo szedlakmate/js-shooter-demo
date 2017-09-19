@@ -126,22 +126,22 @@ var imageRepository = new function() {
 	 	return returnedObjects;
 	 };
 	/*
-	 * Insert the object into the quadTree. If the tree
-	 * excedes the capacity, it will split and add all
-	 * objects to their corresponding nodes.
-	 */
-	 this.insert = function(obj) {
-	 	if (typeof obj === "undefined") {
-	 		return;
-	 	}
-	 	if (obj instanceof Array) {
-	 		for (var i = 0, len = obj.length; i < len; i++) {
-	 			this.insert(obj[i]);
-	 		}
-	 		return;
-	 	}
-	 	if (this.nodes.length) {
-	 		var index = this.getIndex(obj);
+	* Insert the object into the quadTree. If the tree
+	* excedes the capacity, it will split and add all
+	* objects to their corresponding nodes.
+	*/
+	this.insert = function(obj) {
+		if (typeof obj === "undefined") {
+			return;
+		}
+		if (obj instanceof Array) {
+			for (var i = 0, len = obj.length; i < len; i++) {
+				this.insert(obj[i]);
+			}
+			return;
+		}
+		if (this.nodes.length) {
+			var index = this.getIndex(obj);
 			// Only add the object to a subnode if it can fit completely
 			// within one
 			if (index != -1) {
@@ -394,6 +394,16 @@ Bullet.prototype = new Drawable();
 function Pool(maxSize) {
 	var size = maxSize; // Max bullets allowed in the pool
 	var pool = [];
+
+	this.getPool = function() {
+		var obj = [];
+		for (var i = 0; i < size; i++) {
+			if (pool[i].alive) {
+				obj.push(pool[i]);
+			}
+		}
+		return obj;
+	}	
 	
 	this.init = function(object) {
 		if (object == "bullet") {
@@ -434,25 +444,24 @@ function Pool(maxSize) {
 	};
 
 	this.getTwo = function(x1, y1, speed1, x2, y2, speed2) {
-		if(!pool[size - 1].alive && 
-			!pool[size - 2].alive) {
+		if(!pool[size - 1].alive && !pool[size - 2].alive) {
 			this.get(x1, y1, speed1);
-		this.get(x2, y2, speed2);
-	}
-};
-
-this.animate = function() {
-	let dateAndTime = new Date();
-	let actualTime = dateAndTime.getHours()*60*60 + dateAndTime.getMinutes()*60 + dateAndTime.getSeconds()
-	
-	if (game.time) {
-		if (actualTime - game.time > game.enemyDelay || actualTime - game.time < 0) {
-			game.time = actualTime;
-			game.enemyPool.get(game.shipCanvas.width - imageRepository.img.enemy.width, Math.random() * game.shipCanvas.height*0.9+10, 2);
+			this.get(x2, y2, speed2);
 		}
-	} else game.time = actualTime;
+	};
 
-	for (var i = 0; i < size; i++) {
+	this.animate = function() {
+		let dateAndTime = new Date();
+		let actualTime = dateAndTime.getHours()*60*60 + dateAndTime.getMinutes()*60 + dateAndTime.getSeconds()
+
+		if (game.time) {
+			if (actualTime - game.time > game.enemyDelay || actualTime - game.time < 0) {
+				game.time = actualTime;
+				game.enemyPool.get(game.shipCanvas.width - imageRepository.img.enemy.width, Math.random() * game.shipCanvas.height*0.9+10, 2);
+			}
+		} else game.time = actualTime;
+
+		for (var i = 0; i < size; i++) {
 			// Only draw until we find an element that is not alive
 			if (pool[i].alive) {
 				if (pool[i].draw()) {
@@ -475,7 +484,7 @@ function Ship() {
 	var fireRate = 15;
 	var counter = 0;
 
-	this.collidableWith = "enemyBullet";
+	this.collidableWith = "enemy";
 	this.type = "ship";
 
 	this.draw = function() {
@@ -484,8 +493,7 @@ function Ship() {
 	this.move = function() {	
 		counter++;
 		// Determine if the action is move action
-		if (KEY_STATUS.left || KEY_STATUS.right ||
-			KEY_STATUS.down || KEY_STATUS.up) {
+		if (KEY_STATUS.left || KEY_STATUS.right || KEY_STATUS.down || KEY_STATUS.up) {
 			// The ship moved, so erase it's current image so it can
 			// be redrawn in it's new location
 			this.context.clearRect(this.x, this.y, this.width, this.height);
@@ -547,11 +555,10 @@ function Enemy() {
 		this.speedY = 0;
 		this.alive = true;
 		this.topEdge = 0;
-		this.bottomEdge = this.y + 90;
+		this.bottomEdge = game.mainCanvas.height - imageRepository.img.enemy.height;
 	};
 
 	//Move the enemy
-
 	this.draw = function() {
 		this.context.clearRect(this.x-1, this.y, this.width+1, this.height);
 		this.x += this.speedX;
@@ -757,9 +764,9 @@ Enemy.prototype = new Drawable();
 	// Insert objects into quadtree
 	game.quadTree.clear();
 	game.quadTree.insert(game.ship);
-	game.quadTree.insert(game.ship.bulletPool.getTwo());
-	/*game.quadTree.insert(game.enemyPool.get());*/
-	game.quadTree.insert(game.enemyBulletPool.get());
+	game.quadTree.insert(game.ship.bulletPool.getPool());
+	game.quadTree.insert(game.enemyPool.getPool());
+	game.quadTree.insert(game.enemyBulletPool.getPool());
 	detectCollision();
 
 	requestAnimFrame( animate );
