@@ -260,12 +260,12 @@ this.animate = function() {
 	let dateAndTime = new Date();
 	let actualTime = dateAndTime.getHours()*60*60 + dateAndTime.getMinutes()*60 + dateAndTime.getSeconds()
 	
-	if (this.time) {
-		if (actualTime - this.time > 2.0 || actualTime - this.time < 0) {
-			this.time = actualTime;
-			game.addEnemy();
+	if (game.time) {
+		if (actualTime - game.time > game.enemyDelay || actualTime - game.time < 0) {
+			game.time = actualTime;
+			game.enemyPool.get(game.shipCanvas.width - imageRepository.img.enemy.width, Math.random() * game.shipCanvas.height*0.9+10, 2);
 		}
-	} else this.time = actualTime;
+	} else game.time = actualTime;
 
 	for (var i = 0; i < size; i++) {
 			// Only draw until we find an element that is not alive
@@ -357,9 +357,8 @@ Ship.prototype = new Drawable();
 		this.speedX = -speed;
 		this.speedY = 0;
 		this.alive = true;
-		this.topEdge = this.y - 90;
+		this.topEdge = 0;
 		this.bottomEdge = this.y + 90;
-	 	//this.leftEdge = this.x - 140;
 	 };
 
 	//Move the enemy
@@ -374,10 +373,10 @@ Ship.prototype = new Drawable();
 
 		this.speedY += (Math.random()-0.5)*0.5*this.speed;
 		if ( Math.abs(this.speedY) > this.speed) this.speedY *= 0.9
-			if (this.y <= this.topEdge) {
+			if (this.y <= 0) {
 				this.speedY = Math.abs(this.speedY)/2;
 			}
-			else if (this.y >= this.bottomEdge + this.width) {
+			else if (this.y >= game.shipCanvas.height - this.height) {
 				this.speedY = -Math.abs(this.speedY)/2;
 			}
 
@@ -416,6 +415,12 @@ Ship.prototype = new Drawable();
 	this.game2 = false;
 	this.game3 = false;
 	this.exit = false;
+
+	this.time = null;
+
+
+	// Setting the default delay of enemies
+	this.enemyDelay = 2.0; //s
 
 	this.init = function() {
 		// Get the canvas elements
