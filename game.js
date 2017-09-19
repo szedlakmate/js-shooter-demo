@@ -26,9 +26,12 @@ https://www.slideshare.net/ernesto.jimenez/5-tips-for-your-html5-games
 var game = new Game();
 
 function init() {
-	if(game.init())
+	if(game.init()) {
+		animate();
 		game.drawMenu();
+	}
 }
+
 
 
 // Define an object to hold all our images for the game
@@ -38,7 +41,7 @@ var imageRepository = new function() {
 	// 		    e.g: imgs/spaceship.png
 	this.img = {background: new Image(), foreground: new Image(), spaceship:new Image(), 
 		bullet:new Image(), logo: new Image(), game1: new Image(), game2: new Image(), 
-		game3: new Image(), exit: new Image(), enemy: new Image()}
+		game3: new Image(), exit: new Image(), enemy: new Image(), gameover: new Image()}
 
 	// Ensure all images have loaded before starting the game
 	var numLoaded = 0;
@@ -330,7 +333,7 @@ function Menu() {
 	};
 
 	this.clear = function() {
-		// Clear foreground
+		// Clear menu
 		this.context.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
 	}
 }
@@ -480,7 +483,7 @@ function Pool(maxSize) {
 
 function Ship() {
 	this.speed = 3;
-	this.bulletPool = new Pool(30);
+	this.bulletPool = new Pool(16);
 	this.bulletPool.init("bullet");
 
 	var fireRate = 15;
@@ -492,47 +495,57 @@ function Ship() {
 	this.draw = function() {
 		this.context.drawImage(imageRepository.img.spaceship, this.x, this.y);
 	};
+
 	this.move = function() {	
-		counter++;
-		// Determine if the action is move action
-		if (KEY_STATUS.left || KEY_STATUS.right || KEY_STATUS.down || KEY_STATUS.up) {
-			// The ship moved, so erase it's current image so it can
-			// be redrawn in it's new location
-			this.context.clearRect(this.x, this.y, this.width, this.height);
-			
-			// Update x and y according to the direction to move and
-			// redraw the ship. Change the else if's to if statements
-			// to have diagonal movement.
-			if (KEY_STATUS.left) {
-				this.x -= this.speed
-				if (this.x <= 0) // Keep player within the screen
-					this.x = 0;
-			} else if (KEY_STATUS.right) {
-				this.x += this.speed
-				if (this.x >= this.canvasWidth - this.width)
-					this.x = this.canvasWidth - this.width;
-			} else if (KEY_STATUS.up) {
-				this.y -= this.speed
-				if (this.y <= 0)
-					this.y = 0;
-			} else if (KEY_STATUS.down) {
-				this.y += this.speed
-				if (this.y >= this.canvasHeight - this.height)
-					this.y = this.canvasHeight - this.height;
+		if (!game.isDead) {
+			counter++;
+			// Determine if the action is move action
+			if (KEY_STATUS.left || KEY_STATUS.right || KEY_STATUS.down || KEY_STATUS.up) {
+				// The ship moved, so erase it's current image so it can
+				// be redrawn in it's new location
+				this.context.clearRect(this.x, this.y, this.width, this.height);
+				
+				// Update x and y according to the direction to move and
+				// redraw the ship. Change the else if's to if statements
+				// to have diagonal movement.
+				if (KEY_STATUS.left) {
+					this.x -= this.speed
+					if (this.x <= 0) // Keep player within the screen
+						this.x = 0;
+				} else if (KEY_STATUS.right) {
+					this.x += this.speed
+					if (this.x >= this.canvasWidth - this.width)
+						this.x = this.canvasWidth - this.width;
+				} else if (KEY_STATUS.up) {
+					this.y -= this.speed
+					if (this.y <= 0)
+						this.y = 0;
+				} else if (KEY_STATUS.down) {
+					this.y += this.speed
+					if (this.y >= this.canvasHeight - this.height)
+						this.y = this.canvasHeight - this.height;
+				}
+				
+				// Finish by redrawing the ship
+				if (!this.isColliding) {
+					this.draw();
+				} 
 			}
-			
-			// Finish by redrawing the ship
-			if (!this.isColliding) {
-				this.draw();
+			if (this.isColliding) {
+				this.context.clearRect(this.x, this.y, this.width, this.height);
+				game.isDead = true;
+				console.log("BUMM");
+				setTimeout(game.gameOver, 1000);
 			}
 		}
-		
+
 		if (KEY_STATUS.space && counter >= fireRate) {
 			this.fire();
 			counter = 0;
 		}
+
 	};
-	
+
 	this.fire = function() {
 		this.bulletPool.getTwo(this.x, this.y+6, 3,
 			this.x, this.y+33, 3);
@@ -611,11 +624,12 @@ function Enemy() {
 Enemy.prototype = new Drawable();
 
 
- // Creates the Game object which will hold all objects and data for the game.
- function Game() {
+// Creates the Game object which will hold all objects and data for the game.
+function Game() {
 
 	// Swithes
-	this.withMenu = true;
+	this.isDead = false;
+	this.withMenu = false;
 	this.game1 = false;
 	this.game2 = false;
 	this.game3 = false;
@@ -628,6 +642,7 @@ Enemy.prototype = new Drawable();
 	this.enemyDelay = 2.0; //s
 
 	this.init = function() {
+		this.withMenu = true;
 		// Get the canvas elements
 		this.bgCanvas = document.getElementById('background');
 		this.fgCanvas = document.getElementById('foreground');
@@ -635,8 +650,7 @@ Enemy.prototype = new Drawable();
 		this.mainCanvas = document.getElementById('main');
 		this.menuCanvas = document.getElementById('menu');
 		
-		// Test to see if canvas is supported. Only need to
-		// check one canvas
+		// Test to see if canvas is supported. Only need to check one canvas
 		if (this.bgCanvas.getContext) {
 			this.bgContext = this.bgCanvas.getContext('2d');
 			this.fgContext = this.fgCanvas.getContext('2d');
@@ -644,8 +658,7 @@ Enemy.prototype = new Drawable();
 			this.mainContext = this.mainCanvas.getContext('2d');
 			this.menuContext = this.menuCanvas.getContext('2d');
 
-			// Initialize objects to contain their context and canvas
-			// information
+			// Initialize objects to contain their context and canvas information
 			Background.prototype.context = this.bgContext;
 			Background.prototype.canvasWidth = this.mainCanvas.width;
 			Background.prototype.canvasHeight = this.mainCanvas.height;
@@ -662,7 +675,7 @@ Enemy.prototype = new Drawable();
 			Bullet.prototype.canvasWidth = this.mainCanvas.width;
 			Bullet.prototype.canvasHeight = this.mainCanvas.height;
 			
-			Menu.prototype.context = this.mainContext;
+			Menu.prototype.context = this.menuContext;
 			Menu.prototype.canvasWidth = this.mainCanvas.width;
 			Menu.prototype.canvasHeight = this.mainCanvas.height;
 
@@ -680,23 +693,7 @@ Enemy.prototype = new Drawable();
 			this.menu = new Menu();
 			this.menu.init(0,0); // Set draw point to 0,0
 			
-			// Initialize the ship object
-			this.ship = new Ship();
-			// Set the ship to start near the bottom middle of the canvas
-			var shipStartX = 5 + imageRepository.img.spaceship.width/2;
-			var shipStartY = this.shipCanvas.height/2 - imageRepository.img.spaceship.height/2;
-			this.ship.init(shipStartX, shipStartY, imageRepository.img.spaceship.width,
-				imageRepository.img.spaceship.height);
-
-			// Initialize the enemy pool object
-			this.enemyPool = new Pool(30);
-			/*this.enemyBulletPool = new Pool(50);*/
-
-			this.enemyPool.init("enemy");
-			/*this.enemyBulletPool.init("enemyBullet");*/
-
-			// Start QuadTree
-			this.quadTree = new QuadTree({x:0,y:0,width:this.mainCanvas.width,height:this.mainCanvas.height});
+			this.reset();
 
 			return true;
 		} else {
@@ -704,54 +701,102 @@ Enemy.prototype = new Drawable();
 		}
 	};
 
+	this.reset = function() {
+		this.time = null;
+
+		//this.shipContext.clearRect(0, 0, this.mainCanvas.width, this.mainCanvas.height);
+		this.mainContext.clearRect(0, 0, this.mainCanvas.width, this.mainCanvas.height);
+		this.menuContext.clearRect(0, 0, this.mainCanvas.width, this.mainCanvas.height);
+
+
+		// Initialize the ship object
+		this.ship = new Ship();
+		// Set the ship to start near the bottom middle of the canvas
+		var shipStartX = 5 + imageRepository.img.spaceship.width/2;
+		var shipStartY = this.shipCanvas.height/2 - imageRepository.img.spaceship.height/2;
+		this.ship.init(shipStartX, shipStartY, imageRepository.img.spaceship.width,
+			imageRepository.img.spaceship.height);
+
+		// Initialize the enemy pool object
+		this.enemyPool = new Pool(30);
+		/*this.enemyBulletPool = new Pool(50);*/
+
+		this.enemyPool.init("enemy");
+		/*this.enemyBulletPool.init("enemyBullet");*/
+
+		// Start QuadTree
+		this.quadTree = new QuadTree({x:0,y:0,width:this.mainCanvas.width,height:this.mainCanvas.height});
+
+	}
+	this.drawGameOver = function(){
+		this.menuContext.drawImage(imageRepository.img.gameover, (this.mainCanvas.width - imageRepository.img.gameover.width)/2, this.mainCanvas.height/2);
+	} 
+
+
+	this.gameOver = function() {
+		game.drawGameOver();	
+
+		setTimeout(function(){
+			game.menuContext.clearRect(0, 0, game.mainCanvas.width, game.mainCanvas.height);
+			game.game1 = false;
+			game.game2 = false;
+			game.game3 = false;
+			game.withMenu = true;
+			game.reset();
+			game.drawMenu();
+		}, 2000);
+	}
+
 	this.addEnemy = function() {
 		if (this.game1 || this.game2 || this.game3) {
 			this.enemyPool.get(this.shipCanvas.width- imageRepository.img.enemy.width, Math.random()*this.shipCanvas.height*0.9+10, 2);
 		}
 	}
 
-	// Mainmenu
+	// Main menu
 	this.drawMenu = function() {
-		animate();
-
 		// Add event listener for `click` events.
+		this.menu.draw();
 		this.menuCanvas.addEventListener('click', eventListener = function(event) {
+			if (game.withMenu) {
+				var x = event.pageX - game.menuCanvas.offsetLeft, y = event.pageY - game.menuCanvas.offsetTop;
 
-			var x = event.pageX - game.menuCanvas.offsetLeft,
-			y = event.pageY - game.menuCanvas.offsetTop;
-
-			if ((x > (game.mainCanvas.width - imageRepository.img.game1.width)/2) && (x < (game.mainCanvas.width + imageRepository.img.game1.width)/2)) {
-				if ((y > game.menu.layoutY[1]) && (y < game.menu.layoutY[1] + imageRepository.img.game1.height)) {
-					game.game1 = true;
-					game.drawMenu = false;
-					game.removeEventListener();
-					console.log("GAME 1");
-					game.start();
-				} else if ((y > game.menu.layoutY[2]) && (y < game.menu.layoutY[2] + imageRepository.img.game2.height)) {
-					game.game2 = true;
-					game.drawMenu = false;
-					game.removeEventListener(); 
-					console.log("GAME 2");
-					game.start();
-				} else if ((y > game.menu.layoutY[3]) && (y < game.menu.layoutY[3] + imageRepository.img.game3.height)) {
-					game.game3 = true;
-					game.drawMenu = false;
-					game.removeEventListener();
-					console.log("GAME 3");
-					game.start();
-				} else if ((y > game.menu.layoutY[4]) && (y < game.menu.layoutY[4] + imageRepository.img.exit.height)) {
-					game.removeEventListener();
-					game.exit = true;
-					window.location.href = 'https://9gag.com/';
+				if ((x > (game.mainCanvas.width - imageRepository.img.game1.width)/2) && (x < (game.mainCanvas.width + imageRepository.img.game1.width)/2)) {
+					if ((y > game.menu.layoutY[1]) && (y < game.menu.layoutY[1] + imageRepository.img.game1.height)) {
+						game.game1 = true;
+						game.isDead = false;
+						game.withMenu = false;
+						game.removeEventListener();
+						console.log("GAME 1");
+						game.start();
+					} else if ((y > game.menu.layoutY[2]) && (y < game.menu.layoutY[2] + imageRepository.img.game2.height)) {
+						game.game2 = true;
+						game.isDead = false;
+						game.withMenu = false;
+						game.removeEventListener(); 
+						console.log("GAME 2");
+						game.start();
+					} else if ((y > game.menu.layoutY[3]) && (y < game.menu.layoutY[3] + imageRepository.img.game3.height)) {
+						game.game3 = true;
+						game.isDead = false;
+						game.withMenu = false;
+						game.removeEventListener();
+						console.log("GAME 3");
+						game.start();
+					} else if ((y > game.menu.layoutY[4]) && (y < game.menu.layoutY[4] + imageRepository.img.exit.height)) {
+						game.removeEventListener();
+						game.exit = true;
+						console.log("EXIT");
+						window.location.href = 'https://9gag.com/';
+					}
 				}
 			}
-
 		}, false);
 
 	};
 
 	this.removeEventListener = function() {
-		this.menuCanvas.removeEventListener('click', eventListener, false);
+		game.menuCanvas.removeEventListener('click', eventListener, false);
 	}
 
 	// Start screen
@@ -769,24 +814,27 @@ Enemy.prototype = new Drawable();
  // The animation loop. 
  function animate() {
 	// Insert objects into quadtree
-	game.quadTree.clear();
-	game.quadTree.insert(game.ship);
-	game.quadTree.insert(game.ship.bulletPool.getPool());
-	game.quadTree.insert(game.enemyPool.getPool());
-	//game.quadTree.insert(game.enemyBulletPool.getPool());
-	detectCollision();
+	if (!game.isDead) {
+		game.quadTree.clear();
+		game.quadTree.insert(game.ship);
+		game.quadTree.insert(game.ship.bulletPool.getPool());
+		game.quadTree.insert(game.enemyPool.getPool());
+		//game.quadTree.insert(game.enemyBulletPool.getPool());
+		detectCollision();
+	}
 
 	requestAnimFrame( animate );
 	let shipYRatio = (game.ship.y - game.background.canvasHeight/2)/game.background.canvasHeight/2;
 
-	if (game.withMenu) game.menu.draw(); else {
+	if (!game.isDead) {
 		game.enemyPool.animate();
+		game.ship.move();
+		game.ship.bulletPool.animate(); 
 		//game.enemyBulletPool.animate();
 	}
 	game.background.draw(shipYRatio);
 	game.foreground.draw(shipYRatio);
-	game.ship.move();
-	game.ship.bulletPool.animate(); 
+
 
 }
 
@@ -832,9 +880,6 @@ for (code in KEY_CODES) {
 	KEY_STATUS[KEY_CODES[code]] = false;
 }
 
-function screenWidth() {
-	return ;
-}
 
 function addListeners() {
 	document.onkeydown = function(e) {
