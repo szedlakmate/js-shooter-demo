@@ -36,7 +36,9 @@ var imageRepository = new function() {
 	// Define images
 	// WARNING: the resource should be: imgs/<objPropName>.png
 	// 		    e.g: imgs/spaceship.png
-	this.img = {background: new Image(), foreground: new Image(), spaceship:new Image(), bullet:new Image(), logo: new Image(), game1: new Image(), game2: new Image(), game3: new Image(), exit: new Image(), enemy: new Image(), enemyBullet: new Image()}
+	this.img = {background: new Image(), foreground: new Image(), spaceship:new Image(), 
+		bullet:new Image(), logo: new Image(), game1: new Image(), game2: new Image(), 
+		game3: new Image(), exit: new Image(), enemy: new Image()}
 
 	// Ensure all images have loaded before starting the game
 	var numLoaded = 0;
