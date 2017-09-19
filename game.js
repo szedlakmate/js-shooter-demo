@@ -70,7 +70,7 @@ var imageRepository = new function() {
  * The quadrant indexes are numbered as below:
  *     |
  *  1  |  0
- * —-+—-
+ *   —-+—-
  *  2  |  3
  *     |
  */
@@ -363,16 +363,16 @@ function Bullet(object) {
 		else if (self === "bullet" && this.x >= this.canvasWidth) {
 			return true;
 		}
-		else if (self === "enemyBullet" && this.x <=  0 - this.width) {
+		/*else if (self === "enemyBullet" && this.x <=  0 - this.width) {
 			return true;
-		}
+		}*/
 		else {
 			if (self === "bullet") {
 				this.context.drawImage(imageRepository.img.bullet, this.x, this.y);
-			}
+			}/*
 			else if (self === "enemyBullet") {
 				this.context.drawImage(imageRepository.img.enemyBullet, this.x, this.y);
-			}
+			}*/
 			return false;
 		}
 	};
@@ -424,7 +424,7 @@ function Pool(maxSize) {
 				enemy.type = "enemy";
 				pool.unshift(enemy);
 			}
-		}
+		}/*
 		else if (object == "enemyBullet") {
 			for (var i = 0; i < size; i++) {
 				var bullet = new Bullet("enemyBullet");
@@ -433,7 +433,7 @@ function Pool(maxSize) {
 				bullet.type = "enemyBullet";
 				pool[i] = bullet;
 			}
-		}
+		}*/
 	};
 	
 	this.get = function(x, y, speed) {
@@ -540,8 +540,9 @@ Ship.prototype = new Drawable();
 
 // Create the Enemy ship object.
 function Enemy() {
+	/*
 	var percentFire = .01;
-	var chance = 0;
+	var chance = 0;*/
 	this.alive = false;
 	this.collidableWith = "bullet";
 	this.type = "enemy";
@@ -578,17 +579,21 @@ function Enemy() {
 
 			if (!this.isColliding) {
 				this.context.drawImage(imageRepository.img.enemy, this.x, this.y);
-		// Enemy has a chance to shoot every movement
-		chance = Math.floor(Math.random()*101);
-		if (chance/100 < percentFire) {
-			this.fire();
-		}
-	}
-};
+				/*
+				// Enemy has a chance to shoot every movement
+				chance = Math.floor(Math.random()*101);
+				if (chance/100 < percentFire) {
+					this.fire();
+				}*/
+			}
+		};
+
+	/*	
 	// Fires a bullet
 	this.fire = function() {
 		game.enemyBulletPool.get(this.x+this.width/2, this.y+this.height, -2.5);
 	}
+	*/
 	// Resets the enemy values
 
 	this.clear = function() {
@@ -683,10 +688,10 @@ Enemy.prototype = new Drawable();
 
 			// Initialize the enemy pool object
 			this.enemyPool = new Pool(30);
-			this.enemyBulletPool = new Pool(50);
+			/*this.enemyBulletPool = new Pool(50);*/
 
 			this.enemyPool.init("enemy");
-			this.enemyBulletPool.init("enemyBullet");
+			/*this.enemyBulletPool.init("enemyBullet");*/
 
 			// Start QuadTree
 			this.quadTree = new QuadTree({x:0,y:0,width:this.mainCanvas.width,height:this.mainCanvas.height});
@@ -766,7 +771,7 @@ Enemy.prototype = new Drawable();
 	game.quadTree.insert(game.ship);
 	game.quadTree.insert(game.ship.bulletPool.getPool());
 	game.quadTree.insert(game.enemyPool.getPool());
-	game.quadTree.insert(game.enemyBulletPool.getPool());
+	//game.quadTree.insert(game.enemyBulletPool.getPool());
 	detectCollision();
 
 	requestAnimFrame( animate );
@@ -774,7 +779,7 @@ Enemy.prototype = new Drawable();
 
 	if (game.withMenu) game.menu.draw(); else {
 		game.enemyPool.animate();
-		game.enemyBulletPool.animate();
+		//game.enemyBulletPool.animate();
 	}
 	game.background.draw(shipYRatio);
 	game.foreground.draw(shipYRatio);
