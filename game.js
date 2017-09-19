@@ -257,19 +257,16 @@ function Pool(maxSize) {
 };
 
 this.animate = function() {
-	let actualTime = new Date()
-	actualtime = actualTime.getHours()*60*60 + actualTime.getMinutes()*60 + actualTime.getSeconds()
+	let dateAndTime = new Date();
+	let actualTime = dateAndTime.getHours()*60*60 + dateAndTime.getMinutes()*60 + dateAndTime.getSeconds()
 	
-	if (!this.time) {
+	if (this.time) {
 		if (actualTime - this.time > 2.0 || actualTime - this.time < 0) {
-			this.time = actualtime;
+			this.time = actualTime;
 			game.addEnemy();
-			/*
-			game.enemyPool.init("enemy");
-			game.enemyPool.get(game.shipCanvas.width- imageRepository.img.enemy.width, Math.random()*game.shipCanvas.height*0.9+10, 2);
-			game.enemyBulletPool.init("enemyBullet");*/
 		}
-	} else this.time = actualtime;
+	} else this.time = actualTime;
+
 	for (var i = 0; i < size; i++) {
 			// Only draw until we find an element that is not alive
 			if (pool[i].alive) {
@@ -371,6 +368,10 @@ Ship.prototype = new Drawable();
 		this.context.clearRect(this.x-1, this.y, this.width+1, this.height);
 		this.x += this.speedX;
 		this.y += this.speedY;
+		if (this.x < -imageRepository.img.enemy.width) {
+			this.clear();
+		}
+
 		this.speedY += (Math.random()-0.5)*0.5*this.speed;
 		if ( Math.abs(this.speedY) > this.speed) this.speedY *= 0.9
 			if (this.y <= this.topEdge) {
@@ -387,22 +388,20 @@ Ship.prototype = new Drawable();
 			this.fire();
 		}
 	};
-	/*
-	 * Fires a bullet
-	 */
-	 this.fire = function() {
-	 	game.enemyBulletPool.get(this.x+this.width/2, this.y+this.height, -2.5);
-	 }
-	/*
-	 * Resets the enemy values
-	 */
-	 this.clear = function() {
-	 	this.x = 0;
-	 	this.y = 0;
-	 	this.speed = 0;
-	 	this.speedX = 0;
-	 	this.speedY = 0;
-	 	this.alive = false;
+	// Fires a bullet
+	this.fire = function() {
+		game.enemyBulletPool.get(this.x+this.width/2, this.y+this.height, -2.5);
+	}
+	// Resets the enemy values
+
+	this.clear = function() {
+		this.x = -100;
+		this.y = -100;
+		this.speed = 0;
+		this.speedX = 0;
+		this.speedY = 0;
+		this.alive = false;
+	 	//his.context.clearRect(this.x-1, this.y, this.width+1, this.height);
 	 };
 	}
 	Enemy.prototype = new Drawable();
@@ -484,26 +483,7 @@ Ship.prototype = new Drawable();
 			this.enemyBulletPool = new Pool(50);
 
 			this.enemyPool.init("enemy");
-			this.enemyPool.get(this.shipCanvas.width- imageRepository.img.enemy.width, Math.random()*this.shipCanvas.height*0.9+10, 2);
 			this.enemyBulletPool.init("enemyBullet");
-
-			/*
-			var height = imageRepository.img.enemy.height;
-			var width = imageRepository.img.enemy.width;
-			var x = 100;
-			var y = -imageRepository.img.enemy.height;
-			var spacer = y * 1.5;
-			for (var i = 1; i <= 18; i++) {
-				this.enemyPool.get(x,y,2);
-				x += width + 25;
-				if (i % 6 == 0) {
-					x = 100;
-					y += spacer
-				}
-			}
-			*/
-
-
 
 			return true;
 		} else {
@@ -512,10 +492,9 @@ Ship.prototype = new Drawable();
 	};
 
 	this.addEnemy = function() {
-		console.log("Add enemy");
-		this.enemyPool.init("enemy");
-		this.enemyPool.get(this.shipCanvas.width- imageRepository.img.enemy.width, Math.random()*this.shipCanvas.height*0.9+10, 2);
-		this.enemyBulletPool.init("enemyBullet");
+		if (this.game1 || this.game2 || this.game3) {
+			this.enemyPool.get(this.shipCanvas.width- imageRepository.img.enemy.width, Math.random()*this.shipCanvas.height*0.9+10, 2);
+		}
 	}
 
 	// Mainmenu
@@ -525,42 +504,38 @@ Ship.prototype = new Drawable();
 		// Add event listener for `click` events.
 		this.menuCanvas.addEventListener('click', eventListener = function(event) {
 
-		var x = event.pageX - game.menuCanvas.offsetLeft,
-		y = event.pageY - game.menuCanvas.offsetTop;
+			var x = event.pageX - game.menuCanvas.offsetLeft,
+			y = event.pageY - game.menuCanvas.offsetTop;
 
-		if ((x > (game.mainCanvas.width - imageRepository.img.game1.width)/2) && (x < (game.mainCanvas.width + imageRepository.img.game1.width)/2)) {
-			if ((y > game.menu.layoutY[1]) && (y < game.menu.layoutY[1] + imageRepository.img.game1.height)) {
-				game.game1 = true;
-				game.drawMenu = false;
-				game.removeEventListener();
-				console.log("GAME 1");
-				game.start();
-			} else if ((y > game.menu.layoutY[2]) && (y < game.menu.layoutY[2] + imageRepository.img.game2.height)) {
-				game.game2 = true;
-				game.drawMenu = false;
-				game.removeEventListener(); 
-				console.log("GAME 2");
-				game.start();
-			} else if ((y > game.menu.layoutY[3]) && (y < game.menu.layoutY[3] + imageRepository.img.game3.height)) {
-				game.game3 = true;
-				game.drawMenu = false;
-				game.removeEventListener();
-				console.log("GAME 3");
-				game.start();
-			} else if ((y > game.menu.layoutY[4]) && (y < game.menu.layoutY[4] + imageRepository.img.exit.height)) {
-				game.removeEventListener();
-				game.exit = true;
-				window.location.href = 'https://9gag.com/';
+			if ((x > (game.mainCanvas.width - imageRepository.img.game1.width)/2) && (x < (game.mainCanvas.width + imageRepository.img.game1.width)/2)) {
+				if ((y > game.menu.layoutY[1]) && (y < game.menu.layoutY[1] + imageRepository.img.game1.height)) {
+					game.game1 = true;
+					game.drawMenu = false;
+					game.removeEventListener();
+					console.log("GAME 1");
+					game.start();
+				} else if ((y > game.menu.layoutY[2]) && (y < game.menu.layoutY[2] + imageRepository.img.game2.height)) {
+					game.game2 = true;
+					game.drawMenu = false;
+					game.removeEventListener(); 
+					console.log("GAME 2");
+					game.start();
+				} else if ((y > game.menu.layoutY[3]) && (y < game.menu.layoutY[3] + imageRepository.img.game3.height)) {
+					game.game3 = true;
+					game.drawMenu = false;
+					game.removeEventListener();
+					console.log("GAME 3");
+					game.start();
+				} else if ((y > game.menu.layoutY[4]) && (y < game.menu.layoutY[4] + imageRepository.img.exit.height)) {
+					game.removeEventListener();
+					game.exit = true;
+					window.location.href = 'https://9gag.com/';
+				}
 			}
-		}
 
 		}, false);
 
 	};
-/*
-	this.eventListener = 
-
-*/
 
 	this.removeEventListener = function() {
 		this.menuCanvas.removeEventListener('click', eventListener, false);
