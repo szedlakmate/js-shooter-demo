@@ -19,3 +19,12 @@ https://www.slideshare.net/ernesto.jimenez/5-tips-for-your-html5-games
 
 * Explosion with particles:
 http://cssdeck.com/labs/particles-explosion-with-html5-canvas
+
+*  A D D I T I O N A L    N O T E S
+- The code contains the possibility to easily implement the weapon of the enemies
+
+- There is a bug in the enemyPool which leads to zombie enemies:
+  The speed of the enemy will be 0 and it will become undestroyable, while
+  it will catch bullets **temporarily fixed**
+
+- Gameflow modified: thegame is speeding up during playing
