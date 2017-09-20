@@ -412,6 +412,8 @@ function shootem (enemyDelay){
 
 		var fireRate = 15;
 		var counter = 0;
+		var scoreTiming = 0;
+		this.playedSeconds = 0;
 
 		this.collidableWith = "enemy";
 		this.type = "ship";
@@ -423,6 +425,7 @@ function shootem (enemyDelay){
 		this.move = function() {	
 			if (!game.isDead) {
 				counter++;
+				 if (game.game1 || game.game2 || game.game3) scoreTiming++;
 				// Determine if the action is move action
 				if (KEY_STATUS.left || KEY_STATUS.right || KEY_STATUS.down || KEY_STATUS.up) {
 					// The ship moved, so erase it's current image so it can
@@ -463,6 +466,12 @@ function shootem (enemyDelay){
 					game.isDead = true;
 					setTimeout(game.gameOver, 300);
 				}
+			}
+
+			if (scoreTiming >= 60){
+				scoreTiming -= 60;
+				game.updateScore(+0.5*1.1**Math.floor(this.playedSeconds/10));
+				this.playedSeconds++;
 			}
 
 			if (KEY_STATUS.space && counter >= fireRate) {
@@ -524,6 +533,7 @@ function shootem (enemyDelay){
 			this.y += this.speedY;
 			if (this.x < -imageRepository.img.enemy.width) {
 				this.clear();
+				game.updateScore(-10);
 			}
 
 			// Setting up randomized vertical movements
@@ -636,7 +646,7 @@ function shootem (enemyDelay){
 			let actualTime = dateAndTime.getHours()*60*60 + dateAndTime.getMinutes()*60 + dateAndTime.getSeconds()
 
 			if (game.time) {
-				if (actualTime - game.time > game.enemyDelay || actualTime - game.time < 0) {
+				if (actualTime - game.time > game.enemyDelay*(0.9** Math.floor(game.ship.playedSeconds/10)) || actualTime - game.time < 0) {
 					game.time = actualTime;
 					game.addEnemy();
 				}
@@ -805,8 +815,13 @@ function shootem (enemyDelay){
 			for (var i = 0; i < particleNum; i++) {
 				this.explosionParticles.push(new this.createParticle(x, y));
 			}
-			this.score++;
-			this.scoretext.innerText = this.score;
+			//this.score += 5;
+			this.updateScore(+5);
+		}
+
+		this.updateScore = function(delta) {
+			this.score += delta;
+			this.scoretext.innerText = Math.floor(this.score);
 		}
 
 		this.drawExplosion = function() {
