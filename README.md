@@ -28,3 +28,9 @@ http://cssdeck.com/labs/particles-explosion-with-html5-canvas
   it will catch bullets - **temporarily fixed**
 
 - Gameflow modified: thegame is speeding up during playing
+
+Checked compatibility:
+- Chrome 61+
+- Firefox 55+
+- MS Edge 40+
+- Opera 47+
