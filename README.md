@@ -19,3 +19,6 @@ https://sbcgamesdev.blogspot.hu/2015/05/phaser-tutorial-dronshooter-simple-game.
 
 * HTML5 canvas design tips:
 https://www.slideshare.net/ernesto.jimenez/5-tips-for-your-html5-games
+
+* Explosion with particles:
+http://cssdeck.com/labs/particles-explosion-with-html5-canvas
