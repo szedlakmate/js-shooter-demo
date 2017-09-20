@@ -27,7 +27,9 @@ http://cssdeck.com/labs/particles-explosion-with-html5-canvas
 
 - There is a bug in the enemyPool which leads to zombie enemies:
   The speed of the enemy will be 0 and it will become undestroyable, while
-  it will catch bullets
+  it will catch bullets **temporarily fixed**
+
+- Gameflow modified: thegame is speeding up during playing
 
   */
 
@@ -895,6 +897,12 @@ function shootem (enemyDelay){
 			this.menuCanvas.addEventListener('click', eventListener = function(event) {
 				if (game.withMenu) {
 					var x = event.pageX - game.menuCanvas.offsetLeft, y = event.pageY - game.menuCanvas.offsetTop;
+
+					if ((x > (game.mainCanvas.width - imageRepository.img.logo.width)/2) && (x < (game.mainCanvas.width + imageRepository.img.logo.width)/2)) {
+						if ((y > game.menu.layoutY[0]) && (y < game.menu.layoutY[0] + imageRepository.img.logo.height)) {
+							window.open("https://github.com/szedlakmate/",'_blank');
+						}
+					}
 
 					if ((x > (game.mainCanvas.width - imageRepository.img.game1.width)/2) && (x < (game.mainCanvas.width + imageRepository.img.game1.width)/2)) {
 						if ((y > game.menu.layoutY[1]) && (y < game.menu.layoutY[1] + imageRepository.img.game1.height)) {
