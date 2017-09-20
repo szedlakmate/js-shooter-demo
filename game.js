@@ -769,8 +769,8 @@ function shootem (){
 			this.radius = 2 + Math.random()*3; 
 			
 			//Random velocities
-			this.vx = -5 + Math.random()*10;
-			this.vy = -5 + Math.random()*10;
+			this.vx = -2 + Math.random()*4;
+			this.vy = -2 + Math.random()*4;
 		}
 
 		this.explode = function(x, y, particleNum) {
@@ -804,7 +804,7 @@ function shootem (){
 
 		    	c.x += c.vx;
 		    	c.y += c.vy;
-		    	c.radius -= .4;
+		    	c.radius -= .2;
 
 		    	if(c.radius <= 0) {
 		    		c.radius = 0;
@@ -844,7 +844,7 @@ function shootem (){
 			if (this.initial !== false) {
 				this.introCanvas.style.opacity = "0";
 				this.initial = false;
-				setTimeout(function(){game.introCanvas.style.display = "none";}, 3000);
+				setTimeout(function(){game.introCanvas.style.display = "none";}, 1500);
 			}
 			// Add event listener for `click` events.
 			this.menu.draw();
@@ -957,10 +957,9 @@ function shootem (){
 	KEY_CODES = {
 		32: 'space',
 		38: 'up',
-		40: 'down'
-		// Additional buttons
-		/*37: 'left',
-		39: 'right',*/
+		40: 'down',
+		37: 'left',
+		39: 'right'
 	}
 
 	// Creates the array to hold the KEY_CODES and sets all their values
