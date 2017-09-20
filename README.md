@@ -3,6 +3,8 @@
 Author: Máté Szedlák
 16/09/2017
 
+Try it: www.szedlak.net/spaceshooter/
+
 Please note, that since I am a brand new junior in this field, 
 I tried to google up the available resources and hints on making
 HTML5 games.
