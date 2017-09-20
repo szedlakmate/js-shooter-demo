@@ -840,7 +840,9 @@ function shootem (enemyDelay){
 		}
 
 		this.drawGameOver = function(){
-			this.menuContext.drawImage(imageRepository.img.gameover, (this.mainCanvas.width - imageRepository.img.gameover.width)/2, this.mainCanvas.height/2);
+			setTimeout( function() {
+				game.menuContext.drawImage(imageRepository.img.gameover, (game.mainCanvas.width - imageRepository.img.gameover.width)/2, game.mainCanvas.height/3 - imageRepository.img.gameover.height/2);
+			}, 301);
 		} 
 
 
