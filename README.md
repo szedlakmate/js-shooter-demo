@@ -14,9 +14,6 @@ was using starting with the most important:
 * Throughout step-by-step guide for writin vanilla JS HTML spacestuff game:
 http://blog.sklambert.com/html5-canvas-game-panning-a-background/
 
-* Another site but with PIXI+TypeScript: [abandoned]
-https://sbcgamesdev.blogspot.hu/2015/05/phaser-tutorial-dronshooter-simple-game.html
-
 * HTML5 canvas design tips:
 https://www.slideshare.net/ernesto.jimenez/5-tips-for-your-html5-games
 
