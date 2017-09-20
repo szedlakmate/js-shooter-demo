@@ -65,6 +65,7 @@ body {
 	background: transparent;
 }
 
+
 #background {
 	z-index: -3;
 	border: 10px solid rgba(0, 0, 0, 0.5);
@@ -85,4 +86,12 @@ body {
 
 #menu {
 	z-index: 5;
+}
+
+#intro {
+	transition: all 2000ms;
+	-webkit-transition: all 2000ms;
+	-moz-transition: all 2000ms;
+	-o-transition: all 2000ms;
+	z-index: 10;
 }

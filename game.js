@@ -30,8 +30,11 @@ var game = new Game();
 
 function init() {
 	if(game.init()) {
-		animate();
-		game.drawMenu();
+		game.initialScreenDraw();
+		setTimeout(function(){
+			animate();
+			game.drawMenu();
+		}, 2000);
 	}
 }
 
@@ -42,7 +45,7 @@ var imageRepository = new function() {
 	// Define images
 	// WARNING: the resource should be: imgs/<objPropName>.png
 	// 		    e.g: imgs/spaceship.png
-	this.img = {background: new Image(), foreground: new Image(), spaceship:new Image(), 
+	this.img = {initialization: new Image(), background: new Image(), foreground: new Image(), spaceship:new Image(), 
 		bullet:new Image(), logo: new Image(), game1: new Image(), game2: new Image(), 
 		game3: new Image(), exit: new Image(), enemy: new Image(), gameover: new Image()}
 
@@ -641,6 +644,7 @@ function Game() {
 	this.game2 = false;
 	this.game3 = false;
 	this.exit = false;
+	this.initial = true;
 
 	this.time = null;
 	this.score = 0;
@@ -658,6 +662,8 @@ function Game() {
 		this.shipCanvas = document.getElementById('ship');
 		this.mainCanvas = document.getElementById('main');
 		this.menuCanvas = document.getElementById('menu');
+		this.introCanvas = document.getElementById('intro');
+
 		this.scoretext = document.getElementById('score');
 		
 		// Test to see if canvas is supported. Only need to check one canvas
@@ -667,6 +673,7 @@ function Game() {
 			this.shipContext = this.shipCanvas.getContext('2d');
 			this.mainContext = this.mainCanvas.getContext('2d');
 			this.menuContext = this.menuCanvas.getContext('2d');
+			this.introContext = this.introCanvas.getContext('2d');
 
 			// Initialize objects to contain their context and canvas information
 			Background.prototype.context = this.bgContext;
@@ -709,6 +716,10 @@ function Game() {
 		} else {
 			return false;
 		}
+	};
+
+	this.initialScreenDraw = function() {
+		this.introContext.drawImage(imageRepository.img.initialization, 0, 0);
 	};
 
 	this.reset = function() {
@@ -824,6 +835,12 @@ function Game() {
 
 	// Main menu
 	this.drawMenu = function() {
+
+		if (this.initial !== false) {
+			this.introCanvas.style.opacity = "0";
+			this.initial = false;
+			setTimeout(function(){game.introCanvas.style.display = "none";}, 3000);
+		}
 		// Add event listener for `click` events.
 		this.menu.draw();
 		this.menuCanvas.addEventListener('click', eventListener = function(event) {
