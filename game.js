@@ -20,6 +20,9 @@ https://sbcgamesdev.blogspot.hu/2015/05/phaser-tutorial-dronshooter-simple-game.
 * HTML5 canvas design tips:
 https://www.slideshare.net/ernesto.jimenez/5-tips-for-your-html5-games
 
+* Explosion with particles:
+http://cssdeck.com/labs/particles-explosion-with-html5-canvas
+
 */
 
 //Initialize the Game and start it
@@ -462,7 +465,7 @@ function Pool(maxSize) {
 		if (game.time) {
 			if (actualTime - game.time > game.enemyDelay || actualTime - game.time < 0) {
 				game.time = actualTime;
-				game.enemyPool.get(game.shipCanvas.width - imageRepository.img.enemy.width, Math.random() * game.shipCanvas.height*0.9+10, 2);
+				game.addEnemy();
 			}
 		} else game.time = actualTime;
 
@@ -474,8 +477,10 @@ function Pool(maxSize) {
 					pool.push((pool.splice(i,1))[0]);
 				}
 			}
-			else
-				break;
+			else {
+				pool[i].clear(); // XXX Bugfix? XXX
+				//break;  // Temporal codepatch
+			}
 		}
 	};
 }
@@ -534,8 +539,7 @@ function Ship() {
 			if (this.isColliding) {
 				this.context.clearRect(this.x, this.y, this.width, this.height);
 				game.isDead = true;
-				console.log("BUMM");
-				setTimeout(game.gameOver, 1000);
+				setTimeout(game.gameOver, 300);
 			}
 		}
 
@@ -576,7 +580,7 @@ function Enemy() {
 
 	//Move the enemy
 	this.draw = function() {
-		this.context.clearRect(this.x-1, this.y, this.width+1, this.height);
+		this.context.clearRect(this.x, this.y, this.width, this.height);
 		this.x += this.speedX;
 		this.y += this.speedY;
 		if (this.x < -imageRepository.img.enemy.width) {
@@ -600,6 +604,9 @@ function Enemy() {
 				if (chance/100 < percentFire) {
 					this.fire();
 				}*/
+			} else {
+				game.explode(this.x, this.y, 30);
+				this.clear();
 			}
 		};
 
@@ -636,6 +643,8 @@ function Game() {
 	this.exit = false;
 
 	this.time = null;
+	this.score = 0;
+	this.explosionParticles = [];
 
 
 	// Setting the default delay of enemies
@@ -649,6 +658,7 @@ function Game() {
 		this.shipCanvas = document.getElementById('ship');
 		this.mainCanvas = document.getElementById('main');
 		this.menuCanvas = document.getElementById('menu');
+		this.scoretext = document.getElementById('score');
 		
 		// Test to see if canvas is supported. Only need to check one canvas
 		if (this.bgCanvas.getContext) {
@@ -703,6 +713,10 @@ function Game() {
 
 	this.reset = function() {
 		this.time = null;
+		this.score = 0;
+		this.scoretext.innerText = this.score;
+		this.explosionParticles = [];
+
 
 		//this.shipContext.clearRect(0, 0, this.mainCanvas.width, this.mainCanvas.height);
 		this.mainContext.clearRect(0, 0, this.mainCanvas.width, this.mainCanvas.height);
@@ -726,8 +740,63 @@ function Game() {
 
 		// Start QuadTree
 		this.quadTree = new QuadTree({x:0,y:0,width:this.mainCanvas.width,height:this.mainCanvas.height});
-
 	}
+
+	this.createParticle = function(x, y) {
+		//Place the circles at the explosion
+		this.x = x;
+		this.y = y;
+		this.originX = x;
+		this.originY = y;
+
+		//Random radius between 2 and 6
+		this.radius = 2 + Math.random()*3; 
+		
+		//Random velocities
+		this.vx = -5 + Math.random()*10;
+		this.vy = -5 + Math.random()*10;
+	}
+
+	this.explode = function(x, y, particleNum) {
+		for (var i = 0; i < particleNum; i++) {
+			this.explosionParticles.push(new this.createParticle(x, y));
+		}
+		this.score++;
+		this.scoretext.innerText = this.score;
+	}
+
+	this.drawExplosion = function() {
+
+	  	//Fill canvas with black color
+	  	this.menuContext.globalCompositeOperation = "source-over";
+	  	//this.mainContext.fillStyle = "rgba(0,0,0,0.15)";
+	  	//ctx.fillRect(0, 0, W, H);
+
+	  	//Clean the circles
+	  	if (this.explosionParticles[0]) {
+	  		this.menuContext.clearRect(this.explosionParticles[0].originX - 60, this.explosionParticles[0].originY - 60, 120, 120);
+	  	}
+	  	//Fill the canvas with circles
+	  	for(var j = 0; j < this.explosionParticles.length; j++){
+	  		var c = this.explosionParticles[j];
+
+	    	//Create the circles
+	    	this.menuContext.beginPath();
+	    	this.menuContext.arc(c.x, c.y, Math.max(c.radius, 0), 0, Math.PI*2, false);
+	    	this.menuContext.fillStyle = "rgba(255, 30, 0, 0.5)";
+	    	this.menuContext.fill();
+
+	    	c.x += c.vx;
+	    	c.y += c.vy;
+	    	c.radius -= .4;
+
+	    	if(c.radius <= 0) {
+	    		c.radius = 0;
+	    		this.explosionParticles.splice(j, 1);
+	    	}
+	    }
+	}
+
 	this.drawGameOver = function(){
 		this.menuContext.drawImage(imageRepository.img.gameover, (this.mainCanvas.width - imageRepository.img.gameover.width)/2, this.mainCanvas.height/2);
 	} 
@@ -749,7 +818,7 @@ function Game() {
 
 	this.addEnemy = function() {
 		if (this.game1 || this.game2 || this.game3) {
-			this.enemyPool.get(this.shipCanvas.width- imageRepository.img.enemy.width, Math.random()*this.shipCanvas.height*0.9+10, 2);
+			this.enemyPool.get(this.shipCanvas.width + imageRepository.img.enemy.width, Math.random()*this.shipCanvas.height*0.9+10, 2);
 		}
 	}
 
@@ -834,6 +903,7 @@ function Game() {
 	}
 	game.background.draw(shipYRatio);
 	game.foreground.draw(shipYRatio);
+	game.drawExplosion();
 
 
 }

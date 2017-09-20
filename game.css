@@ -21,6 +21,7 @@ body {
 	background-color: rgba(0, 0, 0, 0.8);
 }
 
+
 .header-transition {
 	top: 0;
 	margin-top: 0;
@@ -40,6 +41,19 @@ body {
 	margin: 0;
 	line-height: 60px;
 }
+
+
+#point-text {
+	position: absolute;
+	right: 10%;
+	color: white;
+	font-weight: 400;
+	text-align: right;
+	font-size: 1rem;
+	margin: 0;
+	line-height: 60px;
+}
+
 
 .game-window {
 	position: absolute;
