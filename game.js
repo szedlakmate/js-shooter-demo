@@ -45,7 +45,7 @@ var imageRepository = new function() {
 	// Define images
 	// WARNING: the resource should be: imgs/<objPropName>.png
 	// 		    e.g: imgs/spaceship.png
-	this.img = {initialization: new Image(), background: new Image(), foreground: new Image(), spaceship:new Image(), 
+	this.img = {splashscreen: new Image(), background: new Image(), foreground: new Image(), spaceship:new Image(), 
 		bullet:new Image(), logo: new Image(), game1: new Image(), game2: new Image(), 
 		game3: new Image(), exit: new Image(), enemy: new Image(), gameover: new Image()}
 
@@ -719,7 +719,7 @@ function Game() {
 	};
 
 	this.initialScreenDraw = function() {
-		this.introContext.drawImage(imageRepository.img.initialization, 0, 0);
+		this.introContext.drawImage(imageRepository.img.splashscreen, 0, 0);
 	};
 
 	this.reset = function() {
