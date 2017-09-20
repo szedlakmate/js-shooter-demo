@@ -20,7 +20,7 @@ https://www.slideshare.net/ernesto.jimenez/5-tips-for-your-html5-games
 * Explosion with particles:
 http://cssdeck.com/labs/particles-explosion-with-html5-canvas
 
-*  A D D I T I O N A L    N O T E S
+*  _ A D D I T I O N A L  _  N O T E S _
 - The code contains the possibility to easily implement the weapon of the enemies
 
 - There is a bug in the enemyPool which leads to zombie enemies:
